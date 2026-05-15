@@ -65,13 +65,19 @@ export const AuthProvider = ({ children }) => {
     // Logout function to handle user logout and socket disconnection
     const logout = () => {
         localStorage.removeItem("token");
+
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
+
         axios.defaults.headers.common["token"] = null;
+
+        if (socket) {
+            socket.disconnect();
+        }
+
         toast.success("Logout successfully");
-        socket.disconnect();
-    }
+    };
 
     // Update profile function to handle user profile updates
     const updateProfile = async (body) => {
@@ -93,7 +99,7 @@ export const AuthProvider = ({ children }) => {
         }
         const newSocket = io(backendUrl, {
             query: {
-                userId: userData._id,
+                userId: userData._id || userData.id,
             }
         });
         newSocket.connect();
